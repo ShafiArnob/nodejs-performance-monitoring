@@ -10,16 +10,17 @@ export let getDataLatency = new Trend('get_data_latency');
 
 // Test configuration - Graduated load pattern
 export let options = {
-  stages: [
-    { duration: '30s', target: 5 },    // Warm up: 0 → 5 users
-    { duration: '1m', target: 10 },    // Ramp up: 5 → 10 users
-    { duration: '2m', target: 10 },    // Stay at 10 users
+    stages: [
+    { duration: '1m', target: 10 },    // Warm up: 0 → 10 users
     { duration: '1m', target: 20 },    // Ramp up: 10 → 20 users
-    { duration: '3m', target: 20 },    // Stay at 20 users (peak load)
-    { duration: '1m', target: 30 },    // Stress test: 20 → 30 users
-    { duration: '2m', target: 30 },    // Stress sustain: 30 users
-    { duration: '1m', target: 0 },     // Ramp down: 30 → 0 users
+    { duration: '2m', target: 20 },    // Hold at 20 users
+    { duration: '1m', target: 40 },    // Ramp up: 20 → 40 users
+    { duration: '3m', target: 40 },    // Peak load: 40 users
+    { duration: '1m', target: 60 },    // Stress test: 40 → 60 users
+    { duration: '2m', target: 60 },    // Stress sustain: 60 users
+    { duration: '1m', target: 0 },     // Ramp down: 60 → 0 users
   ],
+
   thresholds: {
     'http_req_duration': ['p(95)<3000'],     // 95% of requests under 3s
     'http_req_failed': ['rate<0.1'],          // Error rate under 10%
