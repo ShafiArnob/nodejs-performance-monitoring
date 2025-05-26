@@ -10,28 +10,26 @@ export let getDataLatency = new Trend('get_data_latency');
 
 // Test configuration - Graduated load pattern
 export let options = {
-    stages: [
-    { duration: '1m', target: 10 },    // Warm up: 0 → 10 users
-    { duration: '1m', target: 20 },    // Ramp up: 10 → 20 users
-    { duration: '2m', target: 20 },    // Hold at 20 users
-    { duration: '1m', target: 40 },    // Ramp up: 20 → 40 users
-    { duration: '3m', target: 40 },    // Peak load: 40 users
-    { duration: '1m', target: 60 },    // Stress test: 40 → 60 users
-    { duration: '2m', target: 60 },    // Stress sustain: 60 users
-    { duration: '1m', target: 0 },     // Ramp down: 60 → 0 users
+  stages: [
+    { duration: '1m', target: 200 },  
+    { duration: '1m', target: 400 },  
+    { duration: '1m', target: 800 },  
+    { duration: '1m', target: 1000 }, 
+    { duration: '1m', target: 1000 }, 
+    { duration: '1m', target: 0 },    
   ],
-
+  
   thresholds: {
-    'http_req_duration': ['p(95)<3000'],     // 95% of requests under 3s
+    'http_req_duration': ['p(95)<3000'],      // 95% of requests under 3s
     'http_req_failed': ['rate<0.1'],          // Error rate under 10%
     'errors': ['rate<0.15'],                  // Custom error rate under 15%
-    'db_insert_latency': ['p(90)<2000'],     // 90% of DB inserts under 2s
-    'health_check_latency': ['p(95)<500'],   // 95% of health checks under 500ms
+    'db_insert_latency': ['p(90)<2000'],      // 90% of DB inserts under 2s
+    'health_check_latency': ['p(95)<500'],    // 95% of health checks under 500ms
   },
 };
 
 // Configuration - REPLACE WITH YOUR EC2 PUBLIC IP
-const BASE_URL = __ENV.TARGET_URL || 'http://54.255.208.1:3000';
+const BASE_URL = __ENV.TARGET_URL || 'http://13.229.143.29:3000';
 
 // Sample data for realistic POST requests
 const sampleUsers = [
@@ -189,6 +187,38 @@ function postData() {
 
 // Detailed summary report
 export function handleSummary(data) {
+  // Helper function to safely format numbers
+  const safeFormat = (value, decimals = 2, fallback = 'N/A') => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return fallback.toString().padStart(10);
+    }
+    return value.toFixed(decimals).padStart(10);
+  };
+
+  // Helper function to safely get metric values
+  const getMetric = (path, property = null) => {
+    try {
+      const parts = path.split('.');
+      let current = data.metrics;
+      
+      for (const part of parts) {
+        if (current && current[part] !== undefined) {
+          current = current[part];
+        } else {
+          return null;
+        }
+      }
+      
+      if (property) {
+        return current && current[property] !== undefined ? current[property] : null;
+      }
+      
+      return current;
+    } catch (e) {
+      return null;
+    }
+  };
+
   return {
     'loadtest-results.json': JSON.stringify(data, null, 2),
     stdout: `
@@ -198,36 +228,36 @@ export function handleSummary(data) {
 ║                                                                              ║
 ║  🚀 PERFORMANCE OVERVIEW                                                     ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
-║     Total Requests: ${data.metrics.http_reqs.values.count.toString().padStart(10)} requests                                      ║
-║     Request Rate:   ${data.metrics.http_reqs.values.rate.toFixed(2).padStart(10)} req/s                                         ║
-║     Data Received:  ${(data.metrics.data_received.values.count / 1024 / 1024).toFixed(2).padStart(10)} MB                                          ║
-║     Data Sent:      ${(data.metrics.data_sent.values.count / 1024 / 1024).toFixed(2).padStart(10)} MB                                          ║
+║     Total Requests: ${(getMetric('http_reqs.values.count') || 0).toString().padStart(10)} requests                                      ║
+║     Request Rate:   ${safeFormat(getMetric('http_reqs.values.rate'))} req/s                                         ║
+║     Data Received:  ${safeFormat((getMetric('data_received.values.count') || 0) / 1024 / 1024)} MB                                          ║
+║     Data Sent:      ${safeFormat((getMetric('data_sent.values.count') || 0) / 1024 / 1024)} MB                                          ║
 ║                                                                              ║
 ║  ⏱️  RESPONSE TIME ANALYSIS                                                   ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
-║     Average:        ${data.metrics.http_req_duration.values.avg.toFixed(2).padStart(10)}ms                                        ║
-║     Median (P50):   ${data.metrics.http_req_duration.values['p(50)'].toFixed(2).padStart(10)}ms                                        ║
-║     90th Percentile:${data.metrics.http_req_duration.values['p(90)'].toFixed(2).padStart(10)}ms                                        ║
-║     95th Percentile:${data.metrics.http_req_duration.values['p(95)'].toFixed(2).padStart(10)}ms                                        ║
-║     99th Percentile:${data.metrics.http_req_duration.values['p(99)'].toFixed(2).padStart(10)}ms                                        ║
-║     Maximum:        ${data.metrics.http_req_duration.values.max.toFixed(2).padStart(10)}ms                                        ║
+║     Average:        ${safeFormat(getMetric('http_req_duration.values.avg'))}ms                                        ║
+║     Median (P50):   ${safeFormat(getMetric('http_req_duration.values.p(50)'))}ms                                        ║
+║     90th Percentile:${safeFormat(getMetric('http_req_duration.values.p(90)'))}ms                                        ║
+║     95th Percentile:${safeFormat(getMetric('http_req_duration.values.p(95)'))}ms                                        ║
+║     99th Percentile:${safeFormat(getMetric('http_req_duration.values.p(99)'))}ms                                        ║
+║     Maximum:        ${safeFormat(getMetric('http_req_duration.values.max'))}ms                                        ║
 ║                                                                              ║
 ║  ❌ ERROR ANALYSIS                                                           ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
-║     HTTP Failures:  ${(data.metrics.http_req_failed.values.rate * 100).toFixed(2).padStart(9)}%                                         ║
-║     Custom Errors:  ${(data.metrics.errors?.values.rate * 100 || 0).toFixed(2).padStart(9)}%                                         ║
-║     Failed Requests:${data.metrics.http_req_failed.values.count || 0}                                             ║
+║     HTTP Failures:  ${safeFormat((getMetric('http_req_failed.values.rate') || 0) * 100)}%                                         ║
+║     Custom Errors:  ${safeFormat((getMetric('errors.values.rate') || 0) * 100)}%                                         ║
+║     Failed Requests:${(getMetric('http_req_failed.values.count') || 0).toString().padStart(10)}                                             ║
 ║                                                                              ║
 ║  🗄️  DATABASE PERFORMANCE                                                    ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
-║     DB Insert P90:  ${data.metrics.db_insert_latency?.values['p(90)']?.toFixed(2).padStart(10) || 'N/A'.padStart(10)}ms                                        ║
-║     DB Insert P95:  ${data.metrics.db_insert_latency?.values['p(95)']?.toFixed(2).padStart(10) || 'N/A'.padStart(10)}ms                                        ║
-║     DB Insert Avg:  ${data.metrics.db_insert_latency?.values.avg?.toFixed(2).padStart(10) || 'N/A'.padStart(10)}ms                                        ║
+║     DB Insert P90:  ${safeFormat(getMetric('db_insert_latency.values.p(90)'))}ms                                        ║
+║     DB Insert P95:  ${safeFormat(getMetric('db_insert_latency.values.p(95)'))}ms                                        ║
+║     DB Insert Avg:  ${safeFormat(getMetric('db_insert_latency.values.avg'))}ms                                        ║
 ║                                                                              ║
 ║  🏥 HEALTH CHECK PERFORMANCE                                                 ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
-║     Health P95:     ${data.metrics.health_check_latency?.values['p(95)']?.toFixed(2).padStart(10) || 'N/A'.padStart(10)}ms                                        ║
-║     Health Average: ${data.metrics.health_check_latency?.values.avg?.toFixed(2).padStart(10) || 'N/A'.padStart(10)}ms                                        ║
+║     Health P95:     ${safeFormat(getMetric('health_check_latency.values.p(95)'))}ms                                        ║
+║     Health Average: ${safeFormat(getMetric('health_check_latency.values.avg'))}ms                                        ║
 ║                                                                              ║
 ║  📈 GRAFANA MONITORING                                                       ║
 ║  ────────────────────────────────────────────────────────────────────────  ║
