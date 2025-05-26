@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -104,7 +104,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -169,7 +169,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -234,7 +234,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -312,7 +312,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -379,7 +379,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -444,7 +444,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -509,7 +509,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -589,7 +589,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -656,7 +656,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -721,7 +721,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -786,7 +786,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -866,7 +866,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -933,7 +933,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -998,7 +998,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1063,7 +1063,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1141,7 +1141,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1238,7 +1238,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1319,8 +1319,10 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
+          "editorMode": "code",
           "expr": "histogram_quantile(0.90, rate(db_query_duration_seconds_bucket{operation=\"insert\"}[5m]))",
           "legendFormat": "Insert P90",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1348,7 +1350,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1442,7 +1444,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1549,7 +1551,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1646,7 +1648,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1748,7 +1750,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "den0qpny3ym80a"
+        "uid": "ben2eqct8u800c"
       },
       "fieldConfig": {
         "defaults": {
@@ -1829,15 +1831,13 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "editorMode": "code",
-          "expr": "100 * (sum(rate(http_requests_total{status_code=~\\\"5..\\\"}[5m])) / sum(rate(http_requests_total[5m]))",
+          "expr": "100 * (sum(rate(http_requests_total{status_code=~\"5.*\"}[5m])) / sum(rate(http_requests_total[5m])))",
           "legendFormat": "5xx Error Rate",
-          "range": true,
           "refId": "A"
         },
         {
-          "expr": "100 * (sum(rate(http_requests_total{status_code=~\"4..\"}[5m])) / sum(rate(http_requests_total[5m])))",
-          "legendFormat": "4xx Error Rate",
+          "expr": "100 * (sum(rate(http_requests_total{status_code=~\"4.*\"}[5m])) / sum(rate(http_requests_total[5m])))",
+          "legendFormat": "4xx Error Rate", 
           "refId": "B"
         }
       ],
@@ -1857,7 +1857,7 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
