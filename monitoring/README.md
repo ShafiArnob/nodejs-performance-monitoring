@@ -1,8 +1,6 @@
 # Grafana Dashboard Metrics Reference Guide
 
-
 This guide explains each Grafana dashboard panel, covering PromQL queries, calculations, and practical meanings. The dashboard monitors both system resources (CPU, memory, disk, network) and application performance (HTTP requests, database queries) to provide complete visibility into your Node.js application's health and performance.
-
 
 ## **Application Health Overview**
 
@@ -13,13 +11,15 @@ This guide explains each Grafana dashboard panel, covering PromQL queries, calcu
 
 **PromQL Explanation**: This query uses the `http_requests_total` counter metric with label filtering to separate successful requests from server errors. The `status_code!~"5.."` filter excludes all HTTP status codes starting with 5 (500, 502, 503, etc.) using regex pattern matching. The `rate()` function calculates the per-second rate of requests over a 5-minute window, and `sum()` aggregates across all application instances. Finally, it divides successful requests by total requests and multiplies by 100 for percentage.
 
+
+
 **How it's calculated**: The system counts all HTTP requests received in the last 5 minutes, then separates them into successful (status codes 200, 201, 404, etc.) and failed (status codes 500, 502, 503, etc.) categories. It calculates what percentage of total requests were successful by dividing successful requests by total requests and converting to percentage.
+
+![alt text](./images/image-1.png)
 
 **Numerical Example**: If your application received 1000 requests in 5 minutes where 995 were successful (status codes 200, 201, 404) and 5 failed with server errors (status codes 500, 502), the calculation would be: (995 ÷ 1000) × 100 = 99.5% availability.
 
 **What it means**: This represents your application's uptime and reliability from the user's perspective. It shows what percentage of user requests your application successfully processes without server-side failures. A value of 99.5% means that 99.5% of users get a proper response (even if it's a 404 error), while 0.5% experience server failures.
-
-**Usefulness**: This is the most critical metric for Service Level Agreements (SLAs) and business operations. Most companies target 99.9% (8.76 hours downtime per year) or 99.99% (52.56 minutes downtime per year) availability. Values below 99% indicate serious reliability issues affecting customer experience and potentially revenue.
 
 ### Panel 2: Requests Per Second (RPS)
 ```promql
@@ -30,11 +30,11 @@ sum(rate(http_requests_total[1m]))
 
 **How it's calculated**: The system counts all HTTP requests received in the last minute, then divides by 60 to get requests per second. If you have multiple application instances, it adds up the rates from each instance to get the total system throughput.
 
+![alt text](./images/image-2.png)
+
 **Numerical Example**: If your application received 180 requests in the last minute, the calculation is 180 ÷ 60 = 3 RPS. With multiple instances: if Instance A handles 120 requests/minute (2 RPS) and Instance B handles 60 requests/minute (1 RPS), the total is 3 RPS.
 
 **What it means**: This shows the current traffic load and user activity on your application. Higher values indicate more users are actively using your system, while sudden drops might indicate problems or reduced user engagement.
-
-**Usefulness**: Essential for capacity planning, scaling decisions, and identifying traffic patterns. Helps determine if you need more servers, if traffic spikes are causing problems, and provides baseline metrics for performance testing comparisons.
 
 ### Panel 3: Request Latency P99
 ```promql
@@ -45,11 +45,11 @@ histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
 
 **How it's calculated**: The system collects response time measurements for all requests over 5 minutes, sorts them from fastest to slowest, then finds the value at the 99th percentile position. This means 99% of requests were faster than this time, and only 1% were slower.
 
+![alt text](./images/image-3.png)
+
 **Numerical Example**: If you had 1000 requests with response times ranging from 50ms to 3000ms, the P99 latency would be the response time of the 990th request when sorted from fastest to slowest. If that request took 800ms, then 99% of users experienced response times under 800ms.
 
 **What it means**: This represents the worst-case response time that most users experience. Unlike average response times which can hide outliers, P99 shows you the experience of your slowest users, which is crucial for user satisfaction.
-
-**Usefulness**: Critical for user experience monitoring because even if your average response time is 200ms, if P99 is 5 seconds, 1% of users are having a terrible experience. In high-traffic systems, 1% can represent thousands of frustrated users.
 
 ### Panel 4: DB Connection Count
 ```promql
@@ -60,11 +60,11 @@ db_connections_active
 
 **How it's calculated**: The application's database connection pool reports how many connections are currently open and actively being used for database operations. This is a real-time count that changes as requests create and release database connections.
 
+![alt text](./images/image-4.png)
+
 **Numerical Example**: If your connection pool is configured with a maximum of 20 connections and this metric shows 15, it means 15 connections are currently active, with 5 connections available for new requests.
 
 **What it means**: This shows how much of your database connection capacity is being used. Database connections are limited resources, and running out can cause new requests to fail or wait, leading to application timeouts.
-
-**Usefulness**: Essential for database performance monitoring and capacity planning. Helps identify connection leaks, determine if you need to increase connection pool size, and provides early warning before connection exhaustion causes application failures.
 
 ## **Enhanced CPU Metrics**
 
@@ -77,11 +77,11 @@ db_connections_active
 
 **How it's calculated**: The system measures how much time each CPU core spends idle (doing nothing) over 5 minutes, averages across all cores, then subtracts from 100% to determine how much time the CPU was actively working. This accounts for time spent in user mode, system mode, and I/O wait.
 
+![alt text](./images/image-5.png)
+
 **Numerical Example**: If your 4-core CPU spent an average of 20% time idle across all cores over 5 minutes, the calculation would be: 100 - 20 = 80% CPU usage. This means the CPU was busy 80% of the time and idle 20% of the time.
 
 **What it means**: This represents how much of your CPU processing power is being utilized. Higher percentages indicate your CPU is working harder to handle the current workload, while lower percentages suggest available capacity.
-
-**Usefulness**: Critical for performance monitoring and capacity planning. Sustained CPU usage above 80% can lead to response time degradation, while usage consistently above 95% indicates an overloaded system that may become unresponsive.
 
 ### Panel 6: Load Average 1m
 ```promql
@@ -92,11 +92,11 @@ node_load1
 
 **How it's calculated**: The operating system counts the number of processes that are either currently running on the CPU or waiting in the run queue to be executed, then calculates the average over the past 1 minute. This includes processes in both runnable and uninterruptible sleep states.
 
+![alt text](./images/image-6.png)
+
 **Numerical Example**: On a 4-core server, a load average of 2.0 means on average 2 processes were competing for CPU time, indicating 50% utilization. A load of 4.0 would mean 100% utilization, and 6.0 would mean 150% utilization with processes waiting.
 
 **What it means**: Load average represents system demand relative to available CPU resources. It indicates not just current CPU usage but also the queue of work waiting to be processed. Unlike CPU percentage, load average can exceed 100% when processes are waiting.
-
-**Usefulness**: Better than CPU percentage for understanding system stress because it shows both current work and queued work. Load higher than your CPU core count indicates processes are waiting, which leads to slower response times even if instantaneous CPU usage looks normal.
 
 ### Panel 7: Context Switches/sec
 ```promql
@@ -107,11 +107,11 @@ rate(node_context_switches_total[5m])
 
 **How it's calculated**: The operating system counts every time the CPU scheduler switches execution from one process or thread to another. The rate function takes the difference between the current count and the count 5 minutes ago, then divides by 300 seconds to get switches per second.
 
+![alt text](./images/image-7.png)
+
 **Numerical Example**: If the context switch counter increased from 1,000,000 to 1,150,000 over 5 minutes (300 seconds), the rate would be: (1,150,000 - 1,000,000) ÷ 300 = 500 context switches per second.
 
 **What it means**: Context switches occur when the CPU stops executing one process and starts executing another. Some context switching is normal and necessary for multitasking, but excessive switching creates overhead that reduces overall system performance.
-
-**Usefulness**: Helps identify performance issues caused by too many processes competing for CPU time. Very high rates (above 10,000/sec) can indicate inefficient application design, too many threads, or system thrashing that degrades performance.
 
 ### Panel 8: CPU I/O Wait %
 ```promql
@@ -122,11 +122,11 @@ avg(rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100
 
 **How it's calculated**: The system measures how much time the CPU spends idle specifically because it's waiting for disk reads, disk writes, or network I/O to complete. This is different from regular idle time because the CPU wants to work but is blocked waiting for data.
 
+![alt text](./images/image-8.png)
+
 **Numerical Example**: If your CPU spent 15% of its time over 5 minutes waiting for disk operations to complete, this metric would show 15%. This means for every 100 seconds, 15 seconds were spent waiting for storage or network I/O.
 
 **What it means**: High I/O wait indicates your CPU is ready to process data but is bottlenecked by slow storage or network operations. The CPU is essentially idle not by choice, but because it's waiting for data to arrive from slower components.
-
-**Usefulness**: Critical for identifying storage and network bottlenecks. High I/O wait (above 20%) suggests your application performance is limited by disk speed, network latency, or inefficient database queries rather than CPU processing power.
 
 ## **Enhanced Memory Metrics**
 
@@ -139,11 +139,11 @@ avg(rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100
 
 **How it's calculated**: The system takes total installed memory, subtracts memory that's available for new processes (including reclaimable cache), divides by total memory, and multiplies by 100 for percentage. Available memory is more accurate than free memory because it includes memory that can be quickly reclaimed from caches.
 
+![alt text](./images/image-9.png)
+
 **Numerical Example**: With 8GB total memory where 6.8GB is available for use, the calculation would be: (1 - (6.8GB ÷ 8GB)) × 100 = (1 - 0.85) × 100 = 15% memory usage. This means 15% is actively used and 85% is available.
 
 **What it means**: This represents how much of your server's RAM is currently being used by applications and the operating system. Unlike simple "free memory," this accounts for memory that appears used but can be reclaimed when needed (like file system caches).
-
-**Usefulness**: Essential for capacity planning and performance monitoring. Memory usage above 85% can lead to performance degradation, and above 95% can cause applications to crash or the system to use swap space, severely impacting performance.
 
 ### Panel 10: Total Memory
 ```promql
@@ -154,11 +154,11 @@ node_memory_MemTotal_bytes
 
 **How it's calculated**: The operating system detects the total amount of physical RAM during boot and reports this value. No calculation is performed; it's a direct hardware specification reading converted to bytes.
 
+![alt text](./images/image-10.png)
+
 **Numerical Example**: If your server has 8GB of RAM installed, this metric would report 8,589,934,592 bytes (8 × 1024 × 1024 × 1024 bytes). Grafana can display this as "8.0 GB" using appropriate units.
 
 **What it means**: This shows the maximum memory capacity of your server hardware. It represents the absolute limit of how much data can be stored in RAM simultaneously before the system must use slower storage methods like swap space.
-
-**Usefulness**: Critical for capacity planning and resource allocation decisions. Helps determine if you need hardware upgrades, guides memory allocation for applications, and provides context for interpreting memory usage percentages.
 
 ### Panel 11: Available Memory
 ```promql
@@ -173,8 +173,6 @@ node_memory_MemAvailable_bytes
 
 **What it means**: This represents memory that new applications can actually use without causing performance problems. It's more accurate than "free memory" because modern operating systems use seemingly "used" memory for performance-enhancing caches that can be released when needed.
 
-**Usefulness**: Most accurate metric for determining if you have sufficient memory for new applications or increased load. When this value gets low (under 1GB on typical systems), you're at risk of memory pressure that can cause performance degradation or application failures.
-
 ### Panel 12: Swap Usage %
 ```promql
 100 * (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes
@@ -188,8 +186,6 @@ node_memory_MemAvailable_bytes
 
 **What it means**: Swap usage indicates memory pressure where the system is using disk space as virtual memory because RAM is insufficient. Any swap usage means you're running low on physical memory, and high swap usage causes severe performance degradation because disk is much slower than RAM.
 
-**Usefulness**: Critical early warning indicator of memory problems. Any consistent swap usage suggests you need more RAM or have memory leaks. High swap usage (above 50%) causes system slowdowns that severely impact user experience.
-
 ## **Enhanced Disk & Network Metrics**
 
 ### Panel 13: Disk Usage %
@@ -201,11 +197,11 @@ node_memory_MemAvailable_bytes
 
 **How it's calculated**: The system checks each filesystem, takes total disk space, subtracts available space to get used space, divides by total space, and converts to percentage. The filter excludes temporary filesystems that exist only in memory and aren't relevant for storage monitoring.
 
-**Numerical Example**: With a 100GB disk where 25GB is available, the calculation would be: 100 - ((25GB ÷ 100GB) × 100) = 100 - 25 = 75% disk usage. This means 75GB is used and 25GB is free.
+![alt text](./images/image-11.png)
+
+**Numerical Example**: With a 100GB disk where 25GB is available, the calculation would be: (((100 - 25)GB ÷ 100GB) × 100) = 100 - 25 = 75% disk usage. This means 75GB is used and 25GB is free.
 
 **What it means**: This shows how much of your storage capacity is currently being used by files, databases, logs, and other data. It indicates how close you are to running out of disk space, which can cause applications to crash when they can't write new data.
-
-**Usefulness**: Critical for preventing system failures due to full disks. Most applications crash when they can't write data, and full disks can cause database corruption. Values above 90% require immediate attention to prevent service outages.
 
 ### Panel 14: Disk Read MB/s
 ```promql
@@ -216,11 +212,11 @@ rate(node_disk_read_bytes_total[5m]) / 1024 / 1024
 
 **How it's calculated**: The system counts total bytes read from disk over 5 minutes, calculates the per-second rate, then converts from bytes per second to megabytes per second by dividing by 1,048,576 (1024²).
 
+![alt text](./images/image-13.png)
+
 **Numerical Example**: If 1.5GB was read from disk in 5 minutes (300 seconds), the calculation would be: (1.5GB ÷ 300 seconds) ÷ 1024² = 5,242,880 bytes/sec ÷ 1,048,576 = 5 MB/s read rate.
 
 **What it means**: This represents how fast your applications are reading data from storage. Higher values indicate heavy database queries, file processing, or other operations that require reading large amounts of data from disk.
-
-**Usefulness**: Helps identify storage bottlenecks and inefficient queries. Sustained high read rates might indicate missing database indexes, inefficient file processing, or insufficient caching that forces repeated disk reads.
 
 ### Panel 15: Disk Write MB/s
 ```promql
@@ -235,8 +231,6 @@ rate(node_disk_written_bytes_total[5m]) / 1024 / 1024
 
 **What it means**: This shows how fast your applications are writing data to storage, including database inserts/updates, log files, temporary files, and other write operations. High values indicate heavy write activity that might impact system performance.
 
-**Usefulness**: Critical for identifying write-heavy operations that might cause storage bottlenecks. Helps optimize logging levels, database write patterns, and identify applications that might be writing excessive temporary data.
-
 ### Panel 16: Network RX MB/s
 ```promql
 rate(node_network_receive_bytes_total{device!="lo"}[5m]) / 1024 / 1024
@@ -246,11 +240,11 @@ rate(node_network_receive_bytes_total{device!="lo"}[5m]) / 1024 / 1024
 
 **How it's calculated**: The system counts bytes received on all network interfaces (excluding loopback) over 5 minutes, calculates the per-second rate, then converts from bytes per second to megabytes per second for easier interpretation.
 
+![alt text](./images/image-12.png)
+
 **Numerical Example**: If 900MB was received over all network interfaces in 5 minutes (300 seconds), the calculation would be: (900MB ÷ 300 seconds) = 3 MB/s receive rate.
 
 **What it means**: This shows how much data your server is receiving from the network, including user requests, API calls, file uploads, database replication, and other incoming network traffic.
-
-**Usefulness**: Essential for monitoring network capacity utilization and identifying unusual traffic patterns. Helps determine if network bandwidth is a bottleneck and provides insights into application usage patterns.
 
 ## **Performance & Database Metrics**
 
@@ -265,13 +259,13 @@ histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
 
 **PromQL Explanation**: These queries use histogram data stored in buckets (`http_request_duration_seconds_bucket`) to calculate percentiles. The `rate()` function normalizes histogram buckets over 5 minutes, then `histogram_quantile()` calculates the 90th and 99th percentiles, representing response times that 90% and 99% of requests complete within.
 
+![alt text](./images/image-14.png)
+
 **How it's calculated**: The system collects response time measurements for all requests over 5 minutes, organizes them into histogram buckets, then calculates percentile values. P90 finds the response time where 90% of requests were faster, P99 finds where 99% were faster.
 
 **Numerical Example**: From 1000 requests with response times ranging from 50ms to 2000ms, if P90 = 400ms and P99 = 800ms, this means 90% of users experienced response times under 400ms, and 99% experienced times under 800ms.
 
 **What it means**: These metrics show response time distribution over time. P90 represents typical user experience, while P99 shows the worst experience that most users encounter. Trends indicate whether performance is improving or degrading.
-
-**Usefulness**: Critical for SLA monitoring and user experience optimization. Unlike averages that can hide problems, percentiles reveal the actual user experience distribution and help identify performance regressions before they affect significant user populations.
 
 ### Panel 18: DB Query Latency P90 - Timeseries
 ```promql
@@ -284,13 +278,15 @@ histogram_quantile(0.90, rate(db_query_duration_seconds_bucket{operation="select
 
 **PromQL Explanation**: These queries use database-specific histogram metrics with operation labels to separate INSERT and SELECT query performance. The `{operation="insert"}` and `{operation="select"}` filters isolate different query types, while `histogram_quantile(0.90, ...)` calculates the 90th percentile latency for each operation type.
 
+
+
 **How it's calculated**: The application measures execution time for each database query, categorizes them by operation type (INSERT, SELECT, UPDATE, DELETE), stores them in histogram buckets, then calculates the 90th percentile latency for each operation type over 5-minute windows.
+
+![alt text](./images/image-15.png)
 
 **Numerical Example**: If INSERT operations over 5 minutes had P90 latency of 50ms and SELECT operations had P90 latency of 20ms, this means 90% of INSERT operations completed within 50ms and 90% of SELECT operations completed within 20ms.
 
 **What it means**: This shows database performance characteristics for different types of operations. INSERT/UPDATE operations typically take longer than SELECT operations because they involve writing data and maintaining indexes, while SELECT operations only read data.
-
-**Usefulness**: Essential for database performance optimization and capacity planning. Helps identify which types of database operations are becoming slow, guides index optimization efforts, and provides early warning of database performance degradation.
 
 ## **System Resources (CPU & Memory) - Timeseries**
 
@@ -303,11 +299,11 @@ histogram_quantile(0.90, rate(db_query_duration_seconds_bucket{operation="select
 
 **How it's calculated**: Same calculation as Panel 5, but Grafana displays the results as a line chart showing how CPU usage changes over time rather than just the current value. This allows visualization of CPU usage patterns and trends.
 
+![alt text](./images/image-16.png)
+
 **Numerical Example**: The chart might show CPU usage starting at 20% at 9:00 AM, rising to 80% during peak hours at 2:00 PM, then dropping to 30% by 6:00 PM, revealing daily usage patterns.
 
 **What it means**: This visualization reveals CPU usage patterns over time, showing how system load correlates with business hours, traffic patterns, or scheduled tasks. It helps identify regular patterns versus anomalies.
-
-**Usefulness**: Critical for capacity planning and performance optimization. Time-series data reveals whether high CPU usage is a consistent problem or occasional spikes, helps correlate CPU usage with other metrics, and guides scaling decisions.
 
 ### Panel 20: Memory Usage - Timeseries
 ```promql
@@ -318,11 +314,11 @@ histogram_quantile(0.90, rate(db_query_duration_seconds_bucket{operation="select
 
 **How it's calculated**: Same calculation as Panel 9, but displayed as a time-series visualization showing memory usage percentage over time rather than just the current snapshot value.
 
+
+
 **Numerical Example**: The chart might show memory usage starting at 40% in the morning, gradually increasing to 85% by afternoon, then either staying high (indicating a memory leak) or dropping back to 40% (indicating normal usage patterns).
 
 **What it means**: This reveals memory usage patterns over time, helping identify whether high memory usage is normal traffic-related growth or potentially problematic trends like memory leaks where usage continuously increases without decreasing.
-
-**Usefulness**: Essential for identifying memory leaks and understanding application memory behavior. Gradual increases without corresponding decreases suggest memory leaks, while spikes that return to baseline indicate normal load-related memory usage.
 
 ## **Network & Advanced Metrics - Timeseries**
 
@@ -339,11 +335,11 @@ rate(node_network_transmit_bytes_total{device!="lo"}[5m]) / 1024 / 1024
 
 **How it's calculated**: The system tracks bytes received and transmitted on all network interfaces (excluding loopback), calculates per-second rates over 5-minute windows, converts to megabytes per second, and displays both directions on a single time-series chart.
 
+![alt text](./images/image-17.png)
+
 **Numerical Example**: A chart might show RX traffic at 5 MB/s during file uploads (high incoming) and TX traffic at 15 MB/s during report generation (high outgoing), revealing different usage patterns for different application activities.
 
 **What it means**: This shows bidirectional network usage patterns over time, revealing whether your application is more upload-heavy (high RX) or download-heavy (high TX), and how network usage correlates with user activity or scheduled tasks.
-
-**Usefulness**: Critical for network capacity planning and identifying unusual traffic patterns. Helps determine if network bandwidth is adequate, identifies potential DDoS attacks or unusual usage patterns, and guides infrastructure scaling decisions.
 
 ### Panel 22: CPU Throttling & Load
 ```promql
@@ -361,13 +357,13 @@ node_load5
 
 **How it's calculated**: Steal time calculates per-second rate of CPU cycles stolen by the hypervisor over 5 minutes. Load averages are direct kernel measurements of system demand over 1 and 5-minute windows, showing both short-term and medium-term system stress.
 
+![alt text](./images/image-18.png)
+
 **Numerical Example**: The chart might show 5% steal time during peak hours (indicating hypervisor throttling), load1 = 3.5 (short-term high demand), and load5 = 2.8 (medium-term moderate demand) on a 4-core system, indicating temporary overload conditions.
 
 **What it means**: Steal time indicates if your virtual machine isn't getting the CPU resources you're paying for due to hypervisor limitations. Load averages show system demand over different time horizons, helping distinguish between temporary spikes and sustained high demand.
 
-**Usefulness**: Critical for virtualized environments to ensure you're getting paid-for resources. High steal time indicates you need better hosting or different instance types. Load averages help distinguish between momentary spikes and sustained performance problems.
-
-### Panel 23: Error Rates (Problem Panel)
+### Panel 23: Error Rates
 ```promql
 # 5xx Server Errors
 100 * (sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
@@ -380,12 +376,12 @@ node_load5
 
 **How it's calculated**: The system counts HTTP responses with 5xx status codes (server errors like 500, 502, 503) and 4xx status codes (client errors like 400, 401, 404) over 5 minutes, then calculates what percentage each represents of total HTTP requests.
 
+![alt text](./images/image-19.png)
+
 **Numerical Example**: From 1000 total requests, if 20 returned 5xx errors and 50 returned 4xx errors, the calculations would be: 5xx error rate = (20 ÷ 1000) × 100 = 2%, 4xx error rate = (50 ÷ 1000) × 100 = 5%.
 
 **What it means**: 5xx errors indicate server-side problems like application bugs, database failures, or infrastructure issues that you need to fix. 4xx errors indicate client-side problems like invalid requests, authentication failures, or requests for non-existent resources.
 
-**Usefulness**: Essential for application reliability monitoring and debugging. 5xx errors directly impact user experience and indicate problems you must fix, while 4xx errors might indicate API misuse, broken links, or malicious requests. Tracking both separately helps prioritize fixes and understand whether problems are internal (5xx) or external (4xx). However, this panel requires proper HTTP metrics instrumentation in your Node.js application to function correctly.
-
----
+## Conclusion
 
 The combination of system-level metrics (Node Exporter) and application-level metrics (custom instrumentation) provides complete observability into both infrastructure performance and application behavior, enabling proactive monitoring and rapid troubleshooting of performance issues.
