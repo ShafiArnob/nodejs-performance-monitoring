@@ -384,4 +384,38 @@ node_load5
 
 ## Conclusion
 
+
+### Summary
+
+#### Row 1: Application Health
+- **Panel 1:** Availability % (Single Stat)
+- **Panel 2:** Total RPS (Single Stat)
+- **Panel 3:** P99 Latency (Single Stat)
+- **Panel 4:** Active DB Connections (Single Stat)
+
+#### Row 2: Performance Trends
+- **Panel 1:** Request Latency Over Time (Graph - P90, P95, P99)
+- **Panel 2:** Requests Per Second (Graph)
+
+#### Row 3: Database Performance
+- **Panel 1:** DB Query Latencies (Graph - Insert/Select P90)
+- **Panel 2:** DB Operations Rate (Graph)
+
+#### Row 4: System Resources
+- **Panel 1:** CPU Usage (Graph)
+- **Panel 2:** Memory Usage (Graph)
+- **Panel 3:** Network I/O (Graph)
+
+#### Row 5: Advanced Metrics
+- **Panel 1:** Load Average (Graph)
+- **Panel 2:** Disk I/O (Graph)
+- **Panel 3:** Error Rates (Graph)
+
+### Panel Colors & Styling
+- **Green:** Good performance metrics
+- **Yellow:** Warning thresholds
+- **Red:** Critical thresholds
+- **Blue:** Informational metrics
+
+
 The combination of system-level metrics (Node Exporter) and application-level metrics (custom instrumentation) provides complete observability into both infrastructure performance and application behavior, enabling proactive monitoring and rapid troubleshooting of performance issues.
