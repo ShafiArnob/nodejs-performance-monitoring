@@ -2,6 +2,18 @@
 
 This project demonstrates a complete setup for monitoring and load testing a Node.js application using Prometheus, Grafana, and k6.
 
+## My notes 
+```bash
+$ git clone https://github.com/poridhioss/nodejs-performance-monitoring.git
+$ docker-compose up --build -d
+
+# get the ip
+$ ip addr show eth0
+
+```
+
+
+
 ## Project Structure
 
 ```

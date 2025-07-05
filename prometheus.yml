@@ -5,13 +5,13 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # 1. Prometheus self‐scrape
+  # 1. Prometheus self‐scrape. It looks after itself.
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 15s
 
-  # 2. Node.js application metrics
+  # 2. Node.js application metrics. 
   - job_name: 'nodejs-app'
     static_configs:
       - targets: ['nodejs-app:3000']  # within Docker network, use service name
